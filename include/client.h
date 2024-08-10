@@ -41,7 +41,7 @@ public:
     bool is_served() {
         std::chrono::time_point<std::chrono::system_clock> current_time = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = current_time - _start_time;
-        return elapsed_seconds.count() * 1000 > _serve_time;
+        return elapsed_seconds.count() * 1000 >= _serve_time;
     }
 
     std::string get_current_department_name() {
