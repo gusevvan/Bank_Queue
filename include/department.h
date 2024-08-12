@@ -20,10 +20,6 @@ public:
     Department(const std::string& name, int employees) {
         _name = name;
         _employees = employees;
-        for (int i = 1; i <= 5; ++i) {
-            std::queue<Client> queue;
-            _queues[i]  = queue;
-        }
     }
     
     std::string get_name() {
@@ -32,25 +28,28 @@ public:
 
     int num_left_clients() {
         int counter = _served_clients.size();
-        for (auto& [key, val] : _queues)
-        {
-            counter += val.size();
+        for (auto& [priority, pr_queue] : _queues) {
+            counter += pr_queue.size();
         }
         return counter;
     }
 
     void add_client(Client& client) {
         timelog::logger.dep_come(client.get_name(), _name);
+        if (_queues.find(client.get_priority()) == _queues.end()) {
+            std::queue<Client> queue;
+            _queues[client.get_priority()] = queue;
+        }
         _queues[client.get_priority()].push(client);
     }
 
     void start() {
-        for (int i = 1; i <= 5; ++i) {
-            while (_served_clients.size() < _employees && _queues[i].size() > 0) {
-                timelog::logger.start_serve(_queues[i].front().get_name(), _name);
-                _queues[i].front().reload_time();
-                _served_clients.push_back(_queues[i].front());
-                _queues[i].pop();
+        for (auto& [priority, pr_queue]: _queues) {
+            while (_served_clients.size() < _employees && pr_queue.size() > 0) {
+                timelog::logger.start_serve(pr_queue.front().get_name(), _name);
+                pr_queue.front().reload_time();
+                _served_clients.push_back(pr_queue.front());
+                pr_queue.pop();
             }
         }
     }
