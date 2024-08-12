@@ -1,6 +1,7 @@
 #pragma once
 #include <queue>
 #include <iostream>
+#include <limits.h>
 #include <map>
 #include <vector>
 #include "client.h"
@@ -41,6 +42,7 @@ public:
             _queues[client.get_priority()] = queue;
         }
         _queues[client.get_priority()].push(client);
+        start();
     }
 
     void start() {
@@ -59,12 +61,24 @@ public:
         for (int i = 0; i < _served_clients.size(); ++i) {
             if (_served_clients[i].is_served()) {
                 ended.push_back(_served_clients[i]);
+                timelog::logger.dep_left(_served_clients[i].get_name(), _name);
                 _served_clients.erase(_served_clients.begin() + i--);
             }
         }
         start();
         return ended;
     }
+
+
+    int time_to_next() {
+        int min_time = INT_MAX;
+        std::chrono::time_point<std::chrono::system_clock> current_time = std::chrono::system_clock::now();
+        for (auto& client: _served_clients) {
+            std::chrono::duration<double> elapsed_seconds = current_time - client.get_start_time();
+            min_time = std::min(min_time, client.get_time() - int(elapsed_seconds.count() * 1000));
+        }
+        return min_time;
+    } 
 
     ~Department() = default;
 };

@@ -30,6 +30,10 @@ public:
         _start_time = std::chrono::system_clock::now();
     }
 
+    std::chrono::time_point<std::chrono::system_clock> get_start_time() {
+        return _start_time;
+    }
+
     int get_time() {
         return _serve_time;
     }

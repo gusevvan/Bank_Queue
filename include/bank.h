@@ -1,7 +1,9 @@
 #pragma once
 #include <iostream>
+#include <limits.h>
 #include <map>
-#include <vector> 
+#include <vector>
+#include <unistd.h> 
 #include "client.h"
 #include "department.h"
 #include "logger.h"
@@ -32,7 +34,6 @@ public:
             for (auto& [name, department]: _departments) {
                 std::vector<Client> ended = department.update_clients();
                 for (auto& client: ended) {
-                    timelog::logger.dep_left(client.get_name(), department.get_name());
                     bool is_empty = client.update_department();
                     if (!is_empty) {
                         _departments[client.get_current_department_name()].add_client(client);
@@ -41,13 +42,17 @@ public:
                     }
                 }
             }
-            int num_in_queues = 0;
+            int num_in_queues = 0, min_time = INT_MAX;
             for (auto& [name, department]: _departments) {
                 num_in_queues += department.num_left_clients();
+                min_time = std::min(min_time, department.time_to_next());
             }
             if (num_in_queues == 0) {
                 break;
+            } else {
+                usleep(min_time * 1000);
             }
+            
         }
         timelog::logger.bank_close(); 
     }
