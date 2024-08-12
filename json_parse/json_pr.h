@@ -53,7 +53,8 @@ namespace rapidjson {
                 departments.push_back(new_department);
             }
 
-            int num_clients = departments_parsed.GetArray().Size();
+
+            int num_clients = clients_parsed.GetArray().Size();
             for (int i = 0; i < num_clients; ++i) {
                 Value& cur_client = d["clients"][i];
                 if (!cur_client.HasMember("name") || !cur_client.HasMember("time") || !cur_client.HasMember("priority") ||
